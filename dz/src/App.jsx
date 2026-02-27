@@ -1,24 +1,36 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { nanoid } from "nanoid";
 import ContactForm from "./components/ContactForm";
 import ContactList from "./components/ContactList";
 import Filter from "./components/Filter";
 
 export default function App() {
-  const [contacts, setContacts] = useState([
-    { id: "id-1", name: "Rosie Simpson", number: "459-12-56" },
-    { id: "id-2", name: "Hermione Kline", number: "443-89-12" },
-    { id: "id-3", name: "Eden Clements", number: "645-17-79" },
-    { id: "id-4", name: "Annie Copeland", number: "227-91-26" },
-  ]);
-
+  const [contacts, setContacts] = useState([]);
   const [filter, setFilter] = useState("");
+
+  useEffect(() => {
+    const savedContacts = localStorage.getItem("contacts");
+    if (savedContacts) {
+      setContacts(JSON.parse(savedContacts));
+    } else {
+      setContacts([
+        { id: "id-1", name: "Rosie Simpson", number: "459-12-56" },
+        { id: "id-2", name: "Hermione Kline", number: "443-89-12" },
+        { id: "id-3", name: "Eden Clements", number: "645-17-79" },
+        { id: "id-4", name: "Annie Copeland", number: "227-91-26" },
+      ]);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("contacts", JSON.stringify(contacts));
+  }, [contacts]);
 
   function addContact(name, number) {
     const normalizedName = name.toLowerCase();
 
     const exists = contacts.some(
-      contact => contact.name.toLowerCase() === normalizedName
+      (contact) => contact.name.toLowerCase() === normalizedName
     );
 
     if (exists) {
@@ -32,14 +44,14 @@ export default function App() {
       number,
     };
 
-    setContacts(prev => [...prev, newContact]);
+    setContacts((prev) => [...prev, newContact]);
   }
 
   function deleteContact(id) {
-    setContacts(prev => prev.filter(contact => contact.id !== id));
+    setContacts((prev) => prev.filter((contact) => contact.id !== id));
   }
 
-  const filteredContacts = contacts.filter(contact =>
+  const filteredContacts = contacts.filter((contact) =>
     contact.name.toLowerCase().includes(filter.toLowerCase())
   );
 
